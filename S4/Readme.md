@@ -20,8 +20,8 @@ Link - https://github.com/raguram/eva/commit/22275217ebc773da1508655389d7cdd9c36
 
 https://github.com/raguram/eva/blob/9b3348df7e41504a2760dd2e9888b50d78c26723/S4/MNIST.ipynb
 
-Architecture: I used a simple model with 14,410 parameters using only Conv (3x3), Relu, Max pool, GAP and Soft Max. 
-Data: No data transform
+* Architecture: I used a simple model with 14,410 parameters using only Conv (3x3), Relu, Max pool, GAP and Soft Max. 
+* Data: No data transform
 
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
@@ -49,8 +49,8 @@ Data: No data transform
 #### Iteration 2 - 99.35%
 
 https://github.com/raguram/eva/blob/2728f2572eae53684938d1a6abebbab4ea6f8eb2/S4/MNIST.ipynb
-Architecture: 20,394 parameters using only Conv (3x3), Relu, BatchNorm, Dropout (0.05), Conv (1x1), Max pool, GAP and Soft Max. 
-Data: Normalized data with Mean and Variance. 
+* Architecture: 20,394 parameters using only Conv (3x3), Relu, BatchNorm, Dropout (0.05), Conv (1x1), Max pool, GAP and Soft Max. 
+* Data: Normalized data with Mean and Variance. 
 
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
@@ -139,9 +139,8 @@ Data: Normalized data with Mean and Variance.
 
 https://github.com/raguram/eva/blob/87b812e416258e875b3bde1198e2cb40624aa011/S4/MNIST.ipynb
 In this iteration, I was trying to reduce the number of parameters to be lesser than 20k. Looking at the misclassifications, one of the things I noticed was that there were lesser number of layers in the first filter group (RF was only 5x5). I added one more layer in the first filter group to increase the RF to 7x7 before applying Max pool. I played with different kernel sizes. 
-
-Architecture: 20,394 parameters using only Conv (3x3), Relu, BatchNorm, Dropout (0.075), Conv (1x1), Max pool, GAP and Soft Max. 
-Data: Normalized data with Mean and Variance. 
+* Architecture: 20,394 parameters using only Conv (3x3), Relu, BatchNorm, Dropout (0.075), Conv (1x1), Max pool, GAP and Soft Max. 
+* Data: Normalized data with Mean and Variance. 
 
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
@@ -189,9 +188,9 @@ Data: Normalized data with Mean and Variance.
 
 https://github.com/raguram/eva/blob/d36bda90bc72f6aa708d815ec63a9ae701ec9728/S4/MNIST.ipynb
 Same architecture as above. Added data transformations. Reason: Misclassifications were coming from slight rotation of the digits or missing pixels that differentiats 7 from a 9. So, tried with data transformation. Or may be its just that I got lucky this time :-D 
-
-Architecture: 20,394 parameters using only Conv (3x3), Relu, BatchNorm, Dropout (0.075), Conv (1x1), Max pool, GAP and Soft Max. 
-Data: Normalized data with Mean and Variance. RandomAffine and ColorJitter (ref: https://www.kaggle.com/enwei26/mnist-digits-pytorch-cnn-99)  
+Also, I noticed with 20 epochs the model was still converging (improving). When I trained the previous model for higher epochs (40), I was getting an accuracy of 99.47%. So, I thought increasing the learning rate would help. So, changed lr to 0.02. 
+* Architecture: 20,394 parameters using only Conv (3x3), Relu, BatchNorm, Dropout (0.075), Conv (1x1), Max pool, GAP and Soft Max. 
+* Data: Normalized data with Mean and Variance. RandomAffine and ColorJitter (ref: https://www.kaggle.com/enwei26/mnist-digits-pytorch-cnn-99)  
 
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
