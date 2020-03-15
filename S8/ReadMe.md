@@ -6,7 +6,7 @@
 
 ## Solution
 
-- Modularized library is used for training a model for CIFAR10 with Resnet18. 
+- Modularized library is used for training a model for CIFAR10 with Resnet18 - https://github.com/raguram/eva/tree/master/cnn-lib
 - Max test accuracy = 85.93% 
 - Number of epochs = 20
 
