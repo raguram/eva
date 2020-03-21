@@ -66,3 +66,5 @@ class CIFAR10Net(nn.Module):
 
   def summarize(self, input):
     summary(self, input_size=input)
+
+CIFAR10Net().summarize((3, 32, 32))

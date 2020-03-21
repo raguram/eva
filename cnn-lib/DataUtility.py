@@ -1,5 +1,5 @@
 import torch
-from torchvision import datasets, transforms
+from torchvision import datasets
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -69,7 +69,7 @@ def showImages(images, targets, predictions=None, cols=10, figSize=(15, 15)):
             plt.title(f"Tru={targets[index]}, Pred={predictions[index]}")
 
 
-def showLoaderImages(loader, classes=None, count=20, muSigmaPair=(0, 1)):
+def showLoaderImages(loader, classes=None, count=20, muSigmaPair=None):
     """
 
     Takes random images from the loader and shows the images.
@@ -79,16 +79,27 @@ def showLoaderImages(loader, classes=None, count=20, muSigmaPair=(0, 1)):
     """
     d, l = iter(loader).next()
     randImages = Utility.randInt(0, len(d), count)
-    images = Utility.unnormalize(d[randImages].permute(0, 2, 3, 1), muSigmaPair[0], muSigmaPair[1])
 
+    images = d[randImages]
+
+    if(muSigmaPair is not None):
+        images = Utility.unnormalize(images, muSigmaPair[0], muSigmaPair[1])
+
+    # Loader has the channel at 1 index. But the show images need channel at the end.
+    images = images.permute(0, 2, 3, 1)
     labels = __getLabels(l, randImages, classes)
-
     showImages(images.numpy(), labels, cols=5)
 
 
-def showRandomImages(data, targets, predictions, classes=None, count=20, muSigmaPair=(0, 1)):
+def showRandomImages(data, targets, predictions, classes=None, count=20, muSigmaPair=None):
     randImages = Utility.randInt(0, len(data), count)
-    images = Utility.unnormalize(data[randImages].permute(0, 2, 3, 1), muSigmaPair[0], muSigmaPair[1])
+
+    images = data[randImages]
+
+    if (muSigmaPair is not None):
+        images = Utility.unnormalize(images, muSigmaPair[0], muSigmaPair[1])
+
+    images = images.permute(0, 2, 3, 1)
 
     targets = __getLabels(targets, randImages, classes)
     predictions = __getLabels(predictions, randImages, classes)
@@ -102,3 +113,13 @@ def __getLabels(labels, randoms, classes):
         labels = np.array([classes[i] for i in labels])
 
     return labels
+
+
+class Alb:
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, img):
+        img = np.array(img)
+        img = self.transforms(image=img)['image']
+        return img

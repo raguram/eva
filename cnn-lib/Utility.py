@@ -23,8 +23,13 @@ def randInt(min, max, size):
     return torch.LongTensor(size).random_(min, max)
 
 
-def unnormalize(tensor, mean, sig):
+def unnormalize(images, mean, sig):
     """
     Unnormalize the tensor
     """
-    return tensor * sig + mean
+    copy = images.clone().detach()
+
+    for img in copy:
+        for t, m, s in zip(img, mean, sig):
+            t.mul_(s).add_(m)
+    return copy
