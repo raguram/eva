@@ -22,6 +22,12 @@ def setSeed(seed):
 def randInt(min, max, size):
     return torch.LongTensor(size).random_(min, max)
 
+def pickRandomElements(data, count):
+    randIndex = randInt(0, len(data), count)
+    if (count >= len(data)):
+        randIndex = [i for i in range(0, len(data))]
+
+    return randIndex
 
 def unnormalize(images, mean, sig):
     """
@@ -33,3 +39,8 @@ def unnormalize(images, mean, sig):
         for t, m, s in zip(img, mean, sig):
             t.mul_(s).add_(m)
     return copy
+
+def toImages(data, muSigPair):
+    if muSigPair:
+        data = unnormalize(data, muSigPair[0], muSigPair[1])
+    return data.permute(0, 2, 3, 1)

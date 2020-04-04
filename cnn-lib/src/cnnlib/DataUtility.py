@@ -3,7 +3,8 @@ from torchvision import datasets
 from matplotlib import pyplot as plt
 import numpy as np
 
-import Utility
+from cnnlib import Utility
+
 
 class Data:
     """
@@ -68,7 +69,6 @@ def showImages(images, targets, predictions=None, cols=10, figSize=(15, 15)):
         else:
             plt.title(f"Tru={targets[index]}, Pred={predictions[index]}")
 
-
 def showLoaderImages(loader, classes=None, count=20, muSigmaPair=None):
     """
 
@@ -78,11 +78,11 @@ def showLoaderImages(loader, classes=None, count=20, muSigmaPair=None):
     :param muSigmaPair: Default is (0, 1)
     """
     d, l = iter(loader).next()
-    randImages = Utility.randInt(0, len(d), count)
 
+    randImages = Utility.pickRandomElements(d, count)
     images = d[randImages]
 
-    if(muSigmaPair is not None):
+    if (muSigmaPair is not None):
         images = Utility.unnormalize(images, muSigmaPair[0], muSigmaPair[1])
 
     # Loader has the channel at 1 index. But the show images need channel at the end.
@@ -92,8 +92,7 @@ def showLoaderImages(loader, classes=None, count=20, muSigmaPair=None):
 
 
 def showRandomImages(data, targets, predictions, classes=None, count=20, muSigmaPair=None):
-    randImages = Utility.randInt(0, len(data), count)
-
+    randImages = Utility.pickRandomElements(data, count)
     images = data[randImages]
 
     if (muSigmaPair is not None):
@@ -105,6 +104,14 @@ def showRandomImages(data, targets, predictions, classes=None, count=20, muSigma
     predictions = __getLabels(predictions, randImages, classes)
 
     showImages(images.numpy(), targets, predictions, cols=5)
+
+
+def loadImages(folder, transforms=None, batch_size=128, iscuda=Utility.getDevice()):
+    dataloader_args = dict(shuffle=True, batch_size=batch_size, num_workers=4, pin_memory=True) if iscuda else dict(
+        shuffle=True, batch_size=batch_size)
+    dataset = datasets.ImageFolder(root=folder, transform=transforms)
+    print(f'Number of images: {len(dataset)}')
+    return torch.utils.data.DataLoader(dataset, **dataloader_args)
 
 
 def __getLabels(labels, randoms, classes):

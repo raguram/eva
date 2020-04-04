@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm_notebook as tqdm
-import Utility
-import MetricsUtility
+from cnnlib import MetricsUtility, Utility
+
 
 class ModelBuilder:
     """
