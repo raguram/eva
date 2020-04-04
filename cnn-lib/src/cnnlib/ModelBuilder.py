@@ -36,7 +36,7 @@ class ModelBuilder:
             test_accs.append(testAcc)
             test_losses.append(test_result.loss)
             print(f'Test Accuracy: {testAcc}%, Test Loss: {test_result.loss}')
-            self.scheduler.step()
+            self.scheduler.step(test_result.loss)
 
         return ModelBuildResult(train_accs, train_losses, test_accs, test_losses)
 
