@@ -86,7 +86,7 @@ class Analyzer:
 
         self.gradCam = gradCam
 
-    def visualize(self, data, data_targets, classes, count=5, muSigPair=None):
+    def visualize(self, data, data_targets, classes, count=5, muSigPair=None, figSize=(15, 15)):
 
         heatmaps, cam_pred = self.gradCam(data)
         randIndices = Utility.pickRandomElements(data, count)
@@ -96,14 +96,14 @@ class Analyzer:
         for layer in heatmaps:
             rand_superImposedImages[layer] = self.superImpose(rand_data, heatmaps[layer], muSigPair)
 
-        self.plot(Utility.toImages(rand_data, muSigPair), rand_targets, rand_cam_pred, rand_superImposedImages, classes)
+        self.plot(Utility.toImages(rand_data, muSigPair), rand_targets, rand_cam_pred, rand_superImposedImages, classes, figSize)
 
-    def plot(self, images, targets, preds, layerImagesMap, classes):
+    def plot(self, images, targets, preds, layerImagesMap, classes, figSize):
 
         c = len(layerImagesMap) + 2
         r = len(images) + 1
 
-        fig = plt.figure(figsize=(10, 5))
+        fig = plt.figure(figsize=figSize)
         fig.subplots_adjust(hspace=0.01, wspace=0.01)
 
         # Print 'Original' in the first row, second column
