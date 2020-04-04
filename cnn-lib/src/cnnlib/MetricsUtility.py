@@ -34,12 +34,14 @@ def computeMetrics(data, prediction, target):
 
 
 def plotMetrics(modelBuildResult):
-    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
-    axs[0, 0].plot(modelBuildResult.testAccuracies)
-    axs[0, 0].set_title("Training Accuracy")
-    axs[0, 1].plot(modelBuildResult.trainLosses)
-    axs[0, 1].set_title("Training Loss")
-    axs[1, 0].plot(modelBuildResult.testAccuracies)
-    axs[1, 0].set_title("Test Accuracy")
-    axs[1, 1].plot(modelBuildResult.testLosses)
-    axs[1, 1].set_title("Test Loss")
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+    axs[0].plot(modelBuildResult.trainAccuracies, label="Train")
+    axs[0].plot(modelBuildResult.testAccuracies, label="Test")
+    axs[0].set_title("Accuracy")
+    axs[0].legend()
+
+    axs[1].plot(modelBuildResult.trainLosses, label="Train")
+    axs[1].plot(modelBuildResult.testLosses, label="Test")
+    axs[1].set_title("Loss")
+    axs[1].legend()
+
