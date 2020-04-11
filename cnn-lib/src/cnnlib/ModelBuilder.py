@@ -1,5 +1,5 @@
 import torch
-from tqdm.autonotebook import tqdm
+from tqdm import tqdm_notebook as tqdm
 from cnnlib import MetricsUtility, Utility
 
 
