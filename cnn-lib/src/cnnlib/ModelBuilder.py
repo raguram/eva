@@ -1,5 +1,5 @@
 import torch
-from tqdm import tqdm_notebook as tqdm
+from tqdm.autonotebook import tqdm
 from cnnlib import MetricsUtility, Utility
 
 
@@ -26,11 +26,11 @@ class ModelBuilder:
         for e in range(0, epoch):
             print(f'\n\nEpoch: {e + 1}')
             train_result = self.trainer.train_one_epoch(self.model, self.data.train, self.optimizer, device=device,
-                                                        lossFn=self.lossFn)
+                                                        lossFn=self.lossFn, scheduler=self.scheduler)
             trainAcc = MetricsUtility.compute_accuracy(train_result.predictions, train_result.targets)
             train_accs.append(trainAcc)
             train_losses.append(train_result.loss)
-            learning_rate = self.optimizer.param_groups[0]['lr']
+            learning_rate = self.optimizer.param_groups[0]['lr'].item()
             learning_rates.append(learning_rate)
             print(f'Train Accuracy: {trainAcc}%, Train Loss: {train_result.loss}, Learning Rate: {learning_rate}')
 
@@ -39,7 +39,6 @@ class ModelBuilder:
             test_accs.append(testAcc)
             test_losses.append(test_result.loss)
             print(f'Test Accuracy: {testAcc}%, Test Loss: {test_result.loss}')
-            self.scheduler.step(test_result.loss)
 
         return ModelBuildResult(train_accs, train_losses, test_accs, test_losses, learning_rates)
 
@@ -54,7 +53,7 @@ class ModelTrainer:
         optimizer.step()
         return (loss, output.argmax(dim=1))
 
-    def train_one_epoch(self, model, train_loader, optimizer, device, lossFn):
+    def train_one_epoch(self, model, train_loader, optimizer, device, lossFn, scheduler):
         model.train()
         pbar = tqdm(train_loader, ncols=1000)
         wholePred = []
@@ -68,6 +67,8 @@ class ModelTrainer:
             wholeData.append(data)
             wholeTarget.append(target)
             totalLoss += loss
+            scheduler.step()
+
         return PredictionResult(torch.cat(wholeData), torch.cat(wholePred), torch.cat(wholeTarget),
                                 totalLoss / len(train_loader.dataset))
 
