@@ -93,6 +93,3 @@ class S11Resnet(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return F.log_softmax(x)
-
-
-summary(S11Resnet(), input_size=(3, 32, 32))

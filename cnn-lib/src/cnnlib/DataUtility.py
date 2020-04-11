@@ -22,7 +22,7 @@ def shape(loader):
     return d.shape
 
 
-def download_CIFAR10(train_transforms, test_transforms, batch_size=128, isCuda=True):
+def download_CIFAR10(train_transforms, test_transforms, batch_size=128, isCuda=Utility.isCuda()):
     """
         Load CIFAR10 dataset. Uses the provided train_transforms and the test_transforms and create a object of Data.
 
