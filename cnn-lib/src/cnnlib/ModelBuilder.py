@@ -25,13 +25,15 @@ class ModelBuilder:
         learning_rates = []
         for e in range(0, epoch):
             print(f'\n\nEpoch: {e + 1}')
+
+            learning_rate = self.optimizer.param_groups[0]['lr']
+            learning_rates.append(learning_rate)
             train_result = self.trainer.train_one_epoch(self.model, self.data.train, self.optimizer, device=device,
                                                         lossFn=self.lossFn, scheduler=self.scheduler)
             trainAcc = MetricsUtility.compute_accuracy(train_result.predictions, train_result.targets)
             train_accs.append(trainAcc)
             train_losses.append(train_result.loss)
-            learning_rate = self.optimizer.param_groups[0]['lr']
-            learning_rates.append(learning_rate)
+
             print(f'Train Accuracy: {trainAcc}%, Train Loss: {train_result.loss}, Learning Rate: {learning_rate}')
 
             test_result = self.tester.test(self.model, self.data.test, lossFn=self.lossFn, device=device)
