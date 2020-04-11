@@ -30,7 +30,7 @@ class ModelBuilder:
             trainAcc = MetricsUtility.compute_accuracy(train_result.predictions, train_result.targets)
             train_accs.append(trainAcc)
             train_losses.append(train_result.loss)
-            learning_rate = self.optimizer.param_groups[0]['lr'].item()
+            learning_rate = self.optimizer.param_groups[0]['lr']
             learning_rates.append(learning_rate)
             print(f'Train Accuracy: {trainAcc}%, Train Loss: {train_result.loss}, Learning Rate: {learning_rate}')
 
