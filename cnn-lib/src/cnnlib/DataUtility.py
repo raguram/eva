@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
+from cnnlib.datasets import ImageNet
 
 
 class Data:
@@ -97,7 +98,7 @@ def showLoaderImages(loader, classes=None, count=20, muSigmaPair=None):
     showImages(images.numpy(), labels, cols=5)
 
 
-def showRandomImages(data, targets, predictions, classes=None, count=20, muSigmaPair=None):
+def showRandomImages(data, targets, predictions=None, classes=None, count=20, muSigmaPair=None):
     randImages = Utility.pickRandomElements(data, count)
     images = data[randImages]
 
@@ -107,54 +108,29 @@ def showRandomImages(data, targets, predictions, classes=None, count=20, muSigma
     images = images.permute(0, 2, 3, 1)
 
     targets = __getLabels(targets, randImages, classes)
-    predictions = __getLabels(predictions, randImages, classes)
+    if predictions:
+        predictions = __getLabels(predictions, randImages, classes)
 
     showImages(images.numpy(), targets, predictions, cols=5)
 
 
-def loadImages(folder, transforms=None, batch_size=128, iscuda=Utility.getDevice()):
-    dataloader_args = dict(shuffle=True, batch_size=batch_size, num_workers=4, pin_memory=True) if iscuda else dict(
-        shuffle=True, batch_size=batch_size)
-    dataset = datasets.ImageFolder(root=folder, transform=transforms)
-    print(f'Number of images: {len(dataset)}')
-    return torch.utils.data.DataLoader(dataset, **dataloader_args)
-
-
-def loadValidationDataset(imagesFolder, groundTruthFile, classesReverseIndex=None, batch_size=128, transforms=None,
-                          iscuda=Utility.getDevice()):
-    dataloader_args = dict(shuffle=True, batch_size=batch_size, num_workers=4, pin_memory=True) if iscuda else dict(
-        shuffle=True, batch_size=batch_size)
-
-    imagePaths = [join(imagesFolder, f) for f in listdir(imagesFolder)]
-
-    groundTruthDict = loadTsvAsDict(groundTruthFile)
-    groundTruthDict = dict((join(imagesFolder, f), groundTruthDict[f]) for f in groundTruthDict)
-    if (classesReverseIndex):
-        groundTruthDict = dict((k, classesReverseIndex[groundTruthDict[k]]) for k in groundTruthDict)
-
-    dataset = ValidationDataset(imagePaths, groundTruthDict, transform=transforms)
-    print(f'Number of validation data images: {len(dataset)}')
-    return torch.utils.data.DataLoader(dataset, **dataloader_args)
-
-
 def loadTinyImagenet(data_folder, train_transforms, test_transforms, batch_size=128, isCuda=Utility.isCuda()):
-    classes = loadFileToArray(data_folder + "/wnids.txt")
-    # classNameDict = loadTsvAsDict(data_folder + "/words.txt")
-    # classes = [classNameDict[c] for c in classes]
+    dataloader_args = dict(shuffle=True, batch_size=batch_size, num_workers=4, pin_memory=True) if isCuda else dict(
+        shuffle=True, batch_size=batch_size)
 
-    print(f'Number of classes: {len(classes)}')
+    train_data = ImageNet.TinyImageNet(data_folder, train=True, transform=train_transforms)
+    train_loader = torch.utils.data.DataLoader(train_data, **dataloader_args)
 
-    classesReverseIndex = dict((c, i) for i, c in enumerate(classes))
-
-    train_loader = loadImages(data_folder + "/train/", train_transforms, batch_size, isCuda)
-    test_loader = loadValidationDataset(data_folder + "/val/images", data_folder + "/val/val_annotations.txt",
-                                        classesReverseIndex, transforms=test_transforms, batch_size=batch_size,
-                                        iscuda=isCuda)
+    test_data = ImageNet.TinyImageNet(data_folder, train=False, transform=train_transforms)
+    test_loader = torch.utils.data.DataLoader(test_data, **dataloader_args)
 
     print(f'Shape of a train data batch: {shape(train_loader)}')
     print(f'Shape of a test data batch: {shape(test_loader)}')
 
-    return Data(train_loader, test_loader, classes)
+    print(f'Number of train images: {len(train_data)}')
+    print(f'Number of test images: {len(test_data)}')
+
+    return Data(train_loader, test_loader, train_data.idx_class)
 
 
 def __getLabels(labels, randoms, classes):
@@ -165,20 +141,6 @@ def __getLabels(labels, randoms, classes):
     return labels
 
 
-def loadFileToArray(file):
-    f = open(file, 'r')
-    x = f.read().splitlines()
-    f.close()
-    return x
-
-
-def loadTsvAsDict(file):
-    with open(file, 'r') as f:
-        reader = csv.reader(f, delimiter='\t')
-        d = dict([(row[0], row[1]) for row in reader])
-    return d
-
-
 class Alb:
     def __init__(self, transforms):
         self.transforms = transforms
@@ -187,23 +149,3 @@ class Alb:
         img = np.array(img)
         img = self.transforms(image=img)['image']
         return img
-
-
-class ValidationDataset(Dataset):
-    def __init__(self, image_paths, truth_labels, transform=None):
-        self.image_paths = image_paths
-        self.truth_labels = truth_labels
-        self.transform = transform
-
-    def __getitem__(self, index):
-        imgPath = self.image_paths[index]
-        with open(imgPath, 'rb') as f:
-            x = Image.open(f)
-            x = x.convert('RGB')
-            y = self.truth_labels[imgPath]
-            if self.transform:
-                x = self.transform(x)
-            return x, y
-
-    def __len__(self):
-        return len(self.image_paths)
