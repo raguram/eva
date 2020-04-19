@@ -2,8 +2,13 @@ import torch
 from torchvision import datasets
 from matplotlib import pyplot as plt
 import numpy as np
-
+import pandas as pd
+import csv
 from cnnlib import Utility
+from torch.utils.data import Dataset
+from PIL import Image
+from os import listdir
+from os.path import isfile, join
 
 
 class Data:
@@ -69,6 +74,7 @@ def showImages(images, targets, predictions=None, cols=10, figSize=(15, 15)):
         else:
             plt.title(f"Tru={targets[index]}, Pred={predictions[index]}")
 
+
 def showLoaderImages(loader, classes=None, count=20, muSigmaPair=None):
     """
 
@@ -114,12 +120,54 @@ def loadImages(folder, transforms=None, batch_size=128, iscuda=Utility.getDevice
     return torch.utils.data.DataLoader(dataset, **dataloader_args)
 
 
+def loadValidationDataset(imagesFolder, groundTruthFile, batch_size=128, transforms=None, iscuda=Utility.getDevice()):
+    dataloader_args = dict(shuffle=True, batch_size=batch_size, num_workers=4, pin_memory=True) if iscuda else dict(
+        shuffle=True, batch_size=batch_size)
+
+    imagePaths = [join(imagesFolder, f) for f in listdir(imagesFolder)]
+    groundTruthDict = loadTsvAsDict(groundTruthFile)
+    groundTruthDict = dict((join(imagesFolder, f), groundTruthDict[f]) for f in groundTruthDict)
+    dataset = ValidationDataset(imagePaths, groundTruthDict, transform=transforms)
+    print(f'Number of validation data images: {len(dataset)}')
+    return torch.utils.data.DataLoader(dataset, **dataloader_args)
+
+
+def loadTinyImagenet(data_folder, train_transforms, test_transforms, batch_size=128, isCuda=Utility.isCuda()):
+    train_loader = loadImages(data_folder + "/train/", train_transforms, batch_size, isCuda)
+    test_loader = loadValidationDataset(data_folder + "/val/images", data_folder + "/val/val_annotations.txt",
+                                        transforms=test_transforms, batch_size=batch_size, iscuda=isCuda)
+
+    print(f'Shape of a train data batch: {shape(train_loader)}')
+    print(f'Shape of a test data batch: {shape(test_loader)}')
+
+    classes = loadFileToArray(data_folder + "/wnids.txt")
+    # classNameDict = loadTsvAsDict(data_folder + "/words.txt")
+    # classes = [classNameDict[c] for c in classes]
+
+    print(f'Number of classes: {len(classes)}')
+    return Data(train_loader, test_loader, classes)
+
+
 def __getLabels(labels, randoms, classes):
     labels = labels[randoms].numpy()
     if classes != None:
         labels = np.array([classes[i] for i in labels])
 
     return labels
+
+
+def loadFileToArray(file):
+    f = open(file, 'r')
+    x = f.read().splitlines()
+    f.close()
+    return x
+
+
+def loadTsvAsDict(file):
+    with open(file, 'r') as f:
+        reader = csv.reader(f, delimiter='\t')
+        d = dict([(row[0], row[1]) for row in reader])
+    return d
 
 
 class Alb:
@@ -130,3 +178,23 @@ class Alb:
         img = np.array(img)
         img = self.transforms(image=img)['image']
         return img
+
+
+class ValidationDataset(Dataset):
+    def __init__(self, image_paths, truth_labels, transform=None):
+        self.image_paths = image_paths
+        self.truth_labels = truth_labels
+        self.transform = transform
+
+    def __getitem__(self, index):
+        imgPath = self.image_paths[index]
+        with open(imgPath, 'rb') as f:
+            x = Image.open(f)
+            x = x.convert('RGB')
+            y = self.truth_labels[imgPath]
+            if self.transform:
+                x = self.transform(x)
+            return x, y
+
+    def __len__(self):
+        return len(self.image_paths)
