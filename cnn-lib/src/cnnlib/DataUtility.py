@@ -10,6 +10,7 @@ from PIL import Image
 from os import listdir
 from os.path import isfile, join
 from cnnlib.datasets import ImageNet
+from tqdm.autonotebook import tqdm as tqdm
 
 
 class Data:
@@ -121,7 +122,7 @@ def loadTinyImagenet(data_folder, train_transforms, test_transforms, batch_size=
     train_data = ImageNet.TinyImageNet(data_folder, train=True, transform=train_transforms)
     train_loader = torch.utils.data.DataLoader(train_data, **dataloader_args)
 
-    test_data = ImageNet.TinyImageNet(data_folder, train=False, transform=train_transforms)
+    test_data = ImageNet.TinyImageNet(data_folder, train=False, transform=test_transforms)
     test_loader = torch.utils.data.DataLoader(test_data, **dataloader_args)
 
     print(f'Shape of a train data batch: {shape(train_loader)}')
@@ -131,6 +132,23 @@ def loadTinyImagenet(data_folder, train_transforms, test_transforms, batch_size=
     print(f'Number of test images: {len(test_data)}')
 
     return Data(train_loader, test_loader, train_data.idx_class)
+
+
+def computeMeanAndStd(train_loader, test_loader=None):
+    data = []
+
+    for images, _ in tqdm(train_loader):
+        data.append(images)
+
+    if test_loader:
+        for images, _ in tqdm(test_loader):
+            data.append(images)
+
+    data = torch.cat(data)
+    mean = data.mean(dim=0).mean(dim=1).mean(dim=1)
+    std = data.std(dim=0).std(dim=1).std(dim=1)
+
+    return mean, std
 
 
 def __getLabels(labels, randoms, classes):
