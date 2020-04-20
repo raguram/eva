@@ -109,7 +109,7 @@ def showRandomImages(data, targets, predictions=None, classes=None, count=20, mu
     images = images.permute(0, 2, 3, 1)
 
     targets = __getLabels(targets, randImages, classes)
-    if predictions:
+    if predictions is not None:
         predictions = __getLabels(predictions, randImages, classes)
 
     showImages(images.numpy(), targets, predictions, cols=5)
