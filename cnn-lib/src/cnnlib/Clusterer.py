@@ -2,6 +2,7 @@ import json
 import numpy as np
 from sklearn.cluster import KMeans
 from matplotlib import pyplot as plt
+import matplotlib.cm as cm
 
 
 class TemplateIdentifier:
@@ -32,7 +33,8 @@ class TemplateIdentifier:
         return (intersection / union)
 
     def cluster(self, k):
-        kmeans = KMeans(k)
+        kmeans = KMeans(n_clusters=k, init='k-means++', max_iter=300,
+                        n_init=10, random_state=0)
         kmeans.fit(self.points)
         centroids = kmeans.cluster_centers_
         lables = kmeans.labels_
@@ -62,25 +64,48 @@ class TemplateIdentifier:
 
     def show_points_centroids(self, ks, figsize):
         fig, axs = plt.subplots(len(ks), 1, figsize=figsize)
+
         point_xs = [p[0] for p in self.points]
         point_ys = [p[1] for p in self.points]
 
+        x = np.arange(max(ks))
+        ys = [i + x + (i * x) ** 2 for i in range(max(ks))]
+        colors = cm.rainbow(np.linspace(0, 1, len(ys)))
+
         if len(ks) == 1:
-            centroids_xs = [c[0] for c in self.all_centroids[ks[0] - 1]]
-            centroids_ys = [c[0] for c in self.all_centroids[ks[0] - 1]]
-            axs.set_title(f"Clusters = {ks[0]}")
-            axs.scatter(point_xs, point_ys)
-            axs.scatter(centroids_xs, centroids_ys, c='red')
+            map = self.__labels_points_map(ks[0])
+            axs.set_title(f"Max_Clusters = {ks[0]}, Actual_clusters = {len(map)}")
+            for label in map:
+                self.__plot_one_label(axs, label, self.all_centroids[ks[0] - 1], map, colors)
 
         else:
             for index, k in enumerate(ks):
-                axs[index].scatter(point_xs, point_ys)
-                centroids_xs = [c[0] for c in self.all_centroids[ks[index] - 1]]
-                centroids_ys = [c[0] for c in self.all_centroids[ks[index] - 1]]
-                axs[index].set_title(f"Clusters = {ks[index]}")
-                axs[index].scatter(point_xs, point_ys)
-                axs[index].scatter(centroids_xs, centroids_ys, c='red')
+                map = self.__labels_points_map(k)
+                axs[index].set_title(f"Max_Clusters = {k}, Actual_clusters = {len(map)}")
+                for label in map:
+                    self.__plot_one_label(axs[index], label, self.all_centroids[k - 1], map, colors)
 
-# c = TemplateIdentifier("data/annotations.json")
-# c.fit()
-# c.show_points_centroids([5, 10, 15], figsize=(5, 10))
+    def __plot_one_label(self, axs, label, centroids, map, colors):
+        point_xs = [p[0] for p in map[label]]
+        point_ys = [p[1] for p in map[label]]
+        centroid_x = [centroids[label][0]]
+        centroid_y = [centroids[label][1]]
+        axs.scatter(point_xs, point_ys, color=colors[label])
+        axs.scatter(centroid_x, centroid_y, color=colors[label], marker='^')
+
+    def __labels_points_map(self, k):
+
+        labels = self.all_labels[k - 1]
+        labelsPointsMap = {}
+        for i in range(len(self.points)):
+            if labelsPointsMap.__contains__(labels[i]):
+                labelsPointsMap[labels[i]].append(self.points[i])
+            else:
+                labelsPointsMap[labels[i]] = []
+                labelsPointsMap[labels[i]].append(self.points[i])
+        return labelsPointsMap
+
+
+c = TemplateIdentifier("data/annotations.json")
+c.fit()
+c.show_points_centroids([5, 10], figsize=(5, 5))
