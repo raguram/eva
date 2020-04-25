@@ -104,7 +104,7 @@ class TemplateIdentifier:
                 labelsPointsMap[labels[i]].append(self.points[i])
         return labelsPointsMap
 
-c = TemplateIdentifier("data/annotations.json")
-c.fit(20)
-c.show_iou_curve()
-# c.show_points_centroids([5, 10], figsize=(5, 5))
+# c = TemplateIdentifier("data/annotations.json")
+# c.fit(20)
+# c.show_iou_curve()
+# # c.show_points_centroids([5, 10], figsize=(5, 5))
