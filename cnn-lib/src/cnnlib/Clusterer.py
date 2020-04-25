@@ -33,8 +33,7 @@ class TemplateIdentifier:
         return (intersection / union)
 
     def cluster(self, k):
-        kmeans = KMeans(n_clusters=k, init='k-means++', max_iter=300,
-                        n_init=10, random_state=0)
+        kmeans = KMeans(n_clusters=k, init='k-means++', random_state=0)
         kmeans.fit(self.points)
         centroids = kmeans.cluster_centers_
         lables = kmeans.labels_
@@ -45,11 +44,11 @@ class TemplateIdentifier:
 
         return (kmeans.labels_, kmeans.cluster_centers_, meanIOU)
 
-    def fit(self):
+    def fit(self, max_clusters):
         self.ious = []
         self.all_labels = []
         self.all_centroids = []
-        for k in range(1, 20):
+        for k in range(1, max_clusters):
             labels, centroids, iou = self.cluster(k)
             self.all_labels.append(labels)
             self.all_centroids.append(centroids)
@@ -105,7 +104,6 @@ class TemplateIdentifier:
                 labelsPointsMap[labels[i]].append(self.points[i])
         return labelsPointsMap
 
-
-c = TemplateIdentifier("data/annotations.json")
-c.fit()
-c.show_points_centroids([5, 10], figsize=(5, 5))
+# c = TemplateIdentifier("data/annotations.json")
+# c.fit(20)
+# c.show_points_centroids([5, 10], figsize=(5, 5))
