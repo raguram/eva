@@ -22,12 +22,12 @@ class TemplateIdentifier:
         self.bbox_w = np.array([ann['bbox'][2] for ann in annotations['annotations']])
         self.bbox_h = np.array([ann['bbox'][3] for ann in annotations['annotations']])
 
-        self.bbox_h_norm = self.bbox_h / self.img_height
         self.bbox_w_norm = self.bbox_w / self.img_width
+        self.bbox_h_norm = self.bbox_h / self.img_height
 
         self.points = [(self.bbox_w_norm[i], self.bbox_h_norm[i]) for i in range(len(self.bbox_h_norm))]
 
-    def __compute_IOU__(self, cen_h, cen_w, bbox_h, bbox_w):
+    def __compute_IOU__(self, cen_w, cen_h, bbox_w, bbox_h):
         intersection = min(cen_h, bbox_h) * min(cen_w, bbox_w)
         union = cen_h * cen_h + bbox_h * bbox_w - intersection
         return (intersection / union)
@@ -55,7 +55,7 @@ class TemplateIdentifier:
             self.ious.append(iou)
 
     def show_iou_curve(self, figsize=(5, 5)):
-        fig, axs = plt.subplots(1, 1, figsize)
+        fig, axs = plt.subplots(1, 1, figsize=figsize)
         axs.plot(self.ious, label="IOUs")
         axs.set_xlabel("Number of Clusters")
         axs.set_ylabel("Mean IOUs")
@@ -104,6 +104,7 @@ class TemplateIdentifier:
                 labelsPointsMap[labels[i]].append(self.points[i])
         return labelsPointsMap
 
-# c = TemplateIdentifier("data/annotations.json")
-# c.fit(20)
+c = TemplateIdentifier("data/annotations.json")
+c.fit(20)
+c.show_iou_curve()
 # c.show_points_centroids([5, 10], figsize=(5, 5))
