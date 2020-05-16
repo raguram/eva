@@ -4,7 +4,7 @@ from statistics import mean
 from PIL import Image
 
 
-def showImages(images, cols=10, figSize=(15, 15)):
+def show_images(images, titles=None, cols=10, figSize=(15, 15)):
     """
     Shows images with its labels. Expected PIL Image.
     """
@@ -14,10 +14,12 @@ def showImages(images, cols=10, figSize=(15, 15)):
     for index in range(0, num_of_images):
         plt.subplot(rows, cols, index + 1)
         plt.axis('off')
+        if titles is not None:
+            plt.title(titles[index])
         plt.imshow(np.asarray(images[index]), cmap="gray")
 
 
-def getStats(images, name):
+def get_stats(images, name):
     widths = [img.size[0] for img in images]
     heights = [img.size[1] for img in images]
 
