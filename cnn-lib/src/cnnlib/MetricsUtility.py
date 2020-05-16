@@ -2,7 +2,6 @@ from sklearn.metrics import confusion_matrix
 import torch
 from matplotlib import pyplot as plt
 
-
 class Metrics:
 
     def __init__(self, accuracy, data, predictions, targets):
