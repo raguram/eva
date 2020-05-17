@@ -24,6 +24,7 @@ class ZipFileImagePersister:
                 img.save(buf, format=self.format)
                 zip.writestr(f"{self.out_folder}/{names[i]}", buf.getvalue())
         zip.close()
+        return names
 
 
 class ImagesPlotter:
@@ -34,3 +35,4 @@ class ImagesPlotter:
 
     def __call__(self, images, names):
         ImageUtils.show_images(images, titles=names, cols=self.cols, figSize=self.fig_size)
+        return names
