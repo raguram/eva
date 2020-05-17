@@ -5,10 +5,10 @@ from io import BytesIO
 
 class ZipFileImagePersister:
 
-    def __init__(self, zip_file_name, out_folder_name, format="JPEG"):
-        self.zip_file_name = zip_file_name
+    def __init__(self, zip, out_folder_name, format="JPEG"):
         self.out_folder = out_folder_name
         self.format = format
+        self.zip = zip
 
     def __call__(self, images, names=None):
 
@@ -17,13 +17,10 @@ class ZipFileImagePersister:
         else:
             names = [f"Image_{i}.{self.format}" for i in range(0, len(images))]
 
-        zip = ZipFile(self.zip_file_name, mode="a")
-
         for i, img in enumerate(images):
             with BytesIO() as buf:
                 img.save(buf, format=self.format)
-                zip.writestr(f"{self.out_folder}/{names[i]}", buf.getvalue())
-        zip.close()
+                self.zip.writestr(f"{self.out_folder}/{names[i]}", buf.getvalue())
         return names
 
 
