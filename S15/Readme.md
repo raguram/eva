@@ -66,16 +66,17 @@ Modified [Depth Models](https://github.com/ialhashim/DenseDepth/blob/master/Dens
 
 ### Data Statistics 
 
-Dataset location: [data.zip](https://drive.google.com/open?id=1NL7ZwDcC0P64L2n_LWqlQSJB45lAHpfD)
-Zip size: 8 GB 
+- Dataset location: [data.zip](https://drive.google.com/open?id=1NL7ZwDcC0P64L2n_LWqlQSJB45lAHpfD)
+- Zip size: 8 GB 
 
-| Folder Name |             Description              | # of images | Dimension | Mean | Std |
-|-------------|--------------------------------------|-------------|-----------|------|-----|
-| bg          | Background Images                    |             |           |      |     |
-| fg          | Foreground Images                    |             |           |      |     |
-| fg_bg       | Foreground pasted on Background      |             |           |      |     |
-| fg_bg_mask  | Foreground mask pasted on Background |             |           |      |     |
-| fg_bg_depth | DenseDepth prediction for fg_bg      |             |           |      |     |
+| Folder Name | # of images |  Dimension  |          Mean          |          Std           |
+|-------------|-------------|-------------|------------------------|------------------------|
+| bg          |         110 | 3, 224, 224 | 0.4491, 0.4220, 0.3982 | 0.0056, 0.0045, 0.0048 |
+| fg          |         208 | 3, w, h     |                        |                        |
+| fg_bg       |      457600 | 3, 224, 224 | 0.4393, 0.4124, 0.3921 | 0.0041, 0.0036, 0.0042 |
+| fg_bg_mask  |      457600 | 1, 224, 224 | 0.0846                 | 0.0432                 |
+| fg_bg_depth |      457600 | 1, 224, 224 | 0.3870                 | 0.0035                 |
+
 
 ## Model Building 
 
