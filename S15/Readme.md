@@ -1,6 +1,6 @@
 # Eva - Foreground Object Detection & Depth Estimation
 
-### Goal
+## Goal
 
 Given an image and the background of the image, predict 
 
@@ -22,7 +22,9 @@ These are generated from:
 * 100 foregrounds, plus their flips
 * 20 random placement on each background.
 
-### Dataset Creation 
+## Dataset
+
+### Dataset Creation
 
 #### Step 1 - Download background images (bg) from google 
 Downloaded ~100 background images from google images using the [plugin](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf?hl=en). 
@@ -62,6 +64,20 @@ Modified [Depth Models](https://github.com/ialhashim/DenseDepth/blob/master/Dens
 ![fg-bg](https://github.com/raguram/eva/blob/master/S15/ReadMeImages/depth_1.png)
 ![fg-bg-depth](https://github.com/raguram/eva/blob/master/S15/ReadMeImages/depth_output.png)
 
+### Data Statistics 
 
+Dataset location: [data.zip](https://drive.google.com/open?id=1NL7ZwDcC0P64L2n_LWqlQSJB45lAHpfD)
+Zip size: 8 GB 
 
+| Folder Name |             Description              | # of images | Dimension | Mean | Std |
+|-------------|--------------------------------------|-------------|-----------|------|-----|
+| bg          | Background Images                    |             |           |      |     |
+| fg          | Foreground Images                    |             |           |      |     |
+| fg_bg       | Foreground pasted on Background      |             |           |      |     |
+| fg_bg_mask  | Foreground mask pasted on Background |             |           |      |     |
+| fg_bg_depth | DenseDepth prediction for fg_bg      |             |           |      |     |
+
+## Model Building 
+
+To start with, I created a tiny dataset out of the bigger set containing randomly picked up 20k fg_bg images with their corresponding mask and depth images. The tiny data set can be accessed at [tiny_data.zip](https://drive.google.com/open?id=1Tw2Ijf2l7fERsOEQ7k_IMRXYTzm4BaI4). 
 
