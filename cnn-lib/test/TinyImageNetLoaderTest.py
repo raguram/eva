@@ -20,6 +20,7 @@ def main():
     data = DataUtility.loadTinyImagenet("data/tiny-imagenet-200", Alb(transforms), Alb(transforms))
     # DataUtility.showLoaderImages(data.test, classes=data.classes)
 
+
     print(DataUtility.computeMeanAndStd(data.train, data.test))
 
 

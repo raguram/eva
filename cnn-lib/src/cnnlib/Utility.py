@@ -76,3 +76,11 @@ def load_images_to_dict(folder, extn):
                 x = x.convert('RGB')
                 imagesDict[imgPath] = x
     return imagesDict
+
+
+def load_image(file, channel):
+
+    with open(file, 'rb') as f:
+        x = Image.open(f)
+        x = x.convert(channel)
+    return x

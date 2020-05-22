@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from statistics import mean
 from PIL import Image
+from os.path import join
 
 
 def show_images(images, titles=None, cols=10, figSize=(15, 15)):
@@ -58,3 +59,10 @@ def paste_fg_on_bg(bg, fg, fg_mask, randomPasteCount):
         masked_images.append(bg_mask)
 
     return overlayed_images, masked_images
+
+
+def load_image(folder, file, channel):
+    with open(join(folder, file), 'rb') as f:
+        x = Image.open(f)
+        x = x.convert(channel)
+    return x
