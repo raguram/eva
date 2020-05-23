@@ -94,7 +94,7 @@ class ModelTrainer:
         loss = self.loss_fn(output, target)
         loss.backward()
         self.optimizer.step()
-        return (loss, output)
+        return (loss.detach().item(), output)
 
     def train_one_epoch(self, loader, epoch_num):
 
@@ -112,12 +112,9 @@ class ModelTrainer:
 
             log.info(f"Obtained the data for batch:{idx}")
 
-            data['bg'] = data['bg'].to(self.device)
-            data['fg_bg'] = data['fg_bg'].to(self.device)
+            x = torch.cat((data['bg'], data['fg_bg']), dim=1).to(self.device)
             data['fg_bg_mask'] = data['fg_bg_mask'].unsqueeze(dim=1).to(self.device)
             data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
-
-            x = torch.cat((data['bg'], data['fg_bg']), dim=1)
 
             log.info(f"Starting the training for batch:{idx}")
             (loss, pred) = self.__train_one_batch__(x, data['fg_bg_mask'])
@@ -156,7 +153,7 @@ class ModelTester:
     def __test_one_batch__(self, data, target):
         output = self.model(data)
         loss = self.loss_fn(output, target)
-        return (loss, output)
+        return (loss.item(), output)
 
     def test(self, loader, epoch_num):
 
@@ -171,31 +168,29 @@ class ModelTester:
 
         log.info(f"Tester starting the testing for epoch: {epoch_num}")
 
-        for idx, data in enumerate(pbar):
+        with torch.no_grad():
+            for idx, data in enumerate(pbar):
 
-            data['bg'] = data['bg'].to(self.device)
-            data['fg_bg'] = data['fg_bg'].to(self.device)
-            data['fg_bg_mask'] = data['fg_bg_mask'].unsqueeze(dim=1).to(self.device)
-            data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
+                x = torch.cat((data['bg'], data['fg_bg']), dim=1).to(device=self.device)
+                data['fg_bg_mask'] = data['fg_bg_mask'].unsqueeze(dim=1).to(self.device)
+                data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
 
-            x = torch.cat((data['bg'], data['fg_bg']), dim=1)
+                log.info(f"Starting the testing for batch:{idx}")
+                (loss, pred) = self.__test_one_batch__(x, data['fg_bg_mask'])
+                log.info(f"End of the testing for batch:{idx}")
 
-            log.info(f"Starting the testing for batch:{idx}")
-            (loss, pred) = self.__test_one_batch__(x, data['fg_bg_mask'])
-            log.info(f"End of the testing for batch:{idx}")
+                total_loss += loss
 
-            total_loss += loss
+                if self.persister is not None:
+                    self.persister(data, pred, epoch_num)
+                    log.info(f"Persisted the prediction for batch:{idx}")
 
-            if self.persister is not None:
-                self.persister(data, pred, epoch_num)
-                log.info(f"Persisted the prediction for batch:{idx}")
+                if self.metric_fn is not None:
+                    metric = self.metric_fn(data, pred)
+                    metrices.append(metric)
+                    log.info(f"Computed the metric for batch:{idx}")
 
-            if self.metric_fn is not None:
-                metric = self.metric_fn(data, pred)
-                metrices.append(metric)
-                log.info(f"Computed the metric for batch:{idx}")
-
-            log.info(f"Completed the training for batch:{idx}")
+                log.info(f"Completed the training for batch:{idx}")
 
         metric = None
         if self.metric_fn is not None:
