@@ -73,9 +73,6 @@ class ModelBuilder:
                     print(f"Saved the model to path:{self.model_path}")
                     log.info(f"Saved the model to path:{self.model_path}")
 
-                Utility.cleanup()
-                log.info(f"Finished cleanup for epoch {e}")
-
         return ModelBuildResult(train_metrices, train_losses, test_metrices, test_losses, learning_rates)
 
 
@@ -100,6 +97,10 @@ class ModelTrainer:
         return (loss, output)
 
     def train_one_epoch(self, loader, epoch_num):
+
+        Utility.cleanup()
+        log.info(f"Finished cleanup for epoch {epoch_num}")
+
         self.model.train()
         pbar = tqdm(loader, ncols=1000)
 
@@ -158,6 +159,10 @@ class ModelTester:
         return (loss, output)
 
     def test(self, loader, epoch_num):
+
+        Utility.cleanup()
+        log.info(f"Finished cleanup for epoch {epoch_num}")
+
         self.model.eval()
 
         pbar = tqdm(loader, ncols=1000)

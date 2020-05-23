@@ -87,6 +87,6 @@ def load_image(file, channel):
 
 
 def cleanup():
-    gc.collect()
     if isCuda():
         torch.cuda.empty_cache()
+    gc.collect()
