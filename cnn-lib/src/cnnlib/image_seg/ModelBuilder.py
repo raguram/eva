@@ -88,13 +88,13 @@ class ModelTrainer:
         self.persister = persister
         self.metric_fn = metric_fn
 
-    def __train_one_batch__(self, data, target):
+    def __train_one_batch__(self, data, target_mask, target_depth):
         self.optimizer.zero_grad()
-        output = self.model(data)
-        loss = self.loss_fn(output, target)
+        mask, depth = self.model(data)
+        loss = self.loss_fn(mask, target_mask) + self.loss_fn(depth, target_depth)
         loss.backward()
         self.optimizer.step()
-        return (loss.detach().item(), output)
+        return (loss.detach().item(), mask, depth)
 
     def train_one_epoch(self, loader, epoch_num):
 
@@ -117,7 +117,7 @@ class ModelTrainer:
             data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
 
             log.info(f"Starting the training for batch:{idx}")
-            (loss, pred) = self.__train_one_batch__(x, data['fg_bg_mask'])
+            (loss, mask, depth) = self.__train_one_batch__(x, data['fg_bg_mask'], data['fg_bg_depth'])
             log.info(f"End of the training for batch:{idx}")
 
             total_loss += loss
@@ -125,11 +125,12 @@ class ModelTrainer:
             log.info(f"Scheduler step for the batch:{idx}")
 
             if self.persister is not None:
-                self.persister(data, pred, epoch_num)
+                self.persister(data, mask, epoch_num, "mask")
+                self.persister(data, depth, epoch_num, "depth")
                 log.info(f"Persisted the prediction for batch:{idx}")
 
             if self.metric_fn is not None:
-                metric = self.metric_fn(data, pred)
+                metric = self.metric_fn(data, mask)
                 metrices.append(metric)
                 log.info(f"Computed the metric for batch:{idx}")
 
@@ -150,10 +151,10 @@ class ModelTester:
         self.persister = persister
         self.metric_fn = metric_fn
 
-    def __test_one_batch__(self, data, target):
-        output = self.model(data)
-        loss = self.loss_fn(output, target)
-        return (loss.item(), output)
+    def __test_one_batch__(self, data, target_mask, target_depth):
+        mask, depth = self.model(data)
+        loss = self.loss_fn(mask, target_mask) + self.loss_fn(depth, target_depth)
+        return (loss.item(), mask, depth)
 
     def test(self, loader, epoch_num):
 
@@ -176,17 +177,18 @@ class ModelTester:
                 data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
 
                 log.info(f"Starting the testing for batch:{idx}")
-                (loss, pred) = self.__test_one_batch__(x, data['fg_bg_mask'])
+                (loss, mask, depth) = self.__test_one_batch__(x, data['fg_bg_mask'], data['fg_bg_depth'])
                 log.info(f"End of the testing for batch:{idx}")
 
                 total_loss += loss
 
                 if self.persister is not None:
-                    self.persister(data, pred, epoch_num)
+                    self.persister(data, mask, epoch_num, "mask")
+                    self.persister(data, depth, epoch_num, "depth")
                     log.info(f"Persisted the prediction for batch:{idx}")
 
                 if self.metric_fn is not None:
-                    metric = self.metric_fn(data, pred)
+                    metric = self.metric_fn(data, mask)
                     metrices.append(metric)
                     log.info(f"Computed the metric for batch:{idx}")
 
