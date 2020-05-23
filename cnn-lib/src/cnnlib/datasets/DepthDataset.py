@@ -29,6 +29,7 @@ class DepthDataset(data.Dataset):
                         self.bg_files[self.__get_bg_index__(self.fg_bg_files[index])], 'RGB')
         fg_bg_mask = load_image(join(self.input_folder, "fg_bg_mask"), self.fg_bg_files[index], 'L')
         fg_bg_depth = load_image(join(self.input_folder, "fg_bg_depth"), self.fg_bg_files[index], 'L')
+        name = self.fg_bg_files[index]
 
         if self.bg_transform:
             bg = self.bg_transform(bg)
@@ -42,7 +43,7 @@ class DepthDataset(data.Dataset):
         if self.fg_bg_depth_transform:
             fg_bg_depth = self.fg_bg_depth_transform(fg_bg_depth)
 
-        return dict({'fg_bg': fg_bg, 'bg': bg, 'fg_bg_mask': fg_bg_mask, 'fg_bg_depth': fg_bg_depth})
+        return dict({'name': name, 'fg_bg': fg_bg, 'bg': bg, 'fg_bg_mask': fg_bg_mask, 'fg_bg_depth': fg_bg_depth})
 
     def __len__(self):
         return len(self.fg_bg_files)

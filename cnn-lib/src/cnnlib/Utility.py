@@ -3,6 +3,7 @@ import csv
 from os import listdir
 from os.path import isfile, join
 from PIL import Image
+import gc
 
 
 def isCuda():
@@ -79,8 +80,13 @@ def load_images_to_dict(folder, extn):
 
 
 def load_image(file, channel):
-
     with open(file, 'rb') as f:
         x = Image.open(f)
         x = x.convert(channel)
     return x
+
+
+def cleanup():
+    gc.collect()
+    if isCuda():
+        torch.cuda.empty_cache()
