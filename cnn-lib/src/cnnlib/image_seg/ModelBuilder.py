@@ -45,8 +45,8 @@ class ModelBuilder:
             log.info(f"Starting the training for epoch {e}")
             # Train
             train_result = self.trainer.train_one_epoch(loader=self.data.train, epoch_num=e)
-            train_losses.append(train_result.loss.item())
-            print(f'Train Loss: {train_result.loss.item()}, Learning Rate: {learning_rate}')
+            train_losses.append(train_result.loss)
+            print(f'Train Loss: {train_result.loss}, Learning Rate: {learning_rate}')
 
             if train_result.metric:
                 train_metrices.append(train_result.metric)
@@ -60,8 +60,8 @@ class ModelBuilder:
                 log.info(f"Starting the testing for epoch {e}")
                 print(f"Predicting on test set.")
                 test_result = self.tester.test(loader=self.data.test, epoch_num=e)
-                test_losses.append(test_result.loss.item())
-                print(f'Test Loss: {test_result.loss.item()}')
+                test_losses.append(test_result.loss)
+                print(f'Test Loss: {test_result.loss}')
 
                 if test_result.metric:
                     test_metrices.append(test_result.metric)
