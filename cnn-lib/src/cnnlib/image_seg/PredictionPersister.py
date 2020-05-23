@@ -1,6 +1,8 @@
 from zipfile import ZipFile
 from cnnlib.ImageDao import ZipFileImagePersister
 from torchvision import transforms
+from cnnlib import Utility
+import torch
 
 
 class ZipPredictionPersister:
@@ -11,6 +13,7 @@ class ZipPredictionPersister:
         self.pil_transform = transforms.ToPILImage()
 
     def __call__(self, data, pred, epoch):
+        pred = pred.to(torch.device("cpu"))
         names = data['name']
         zip = ZipFile(self.zip_file_name, 'a')
         persister = ZipFileImagePersister(zip, out_folder_name=self.out_folder_pattern.format(epoch))

@@ -1,5 +1,5 @@
 import torch
-from tqdm import tqdm
+from tqdm import tqdm_notebook as tqdm
 from cnnlib import Utility
 import logging as log
 
