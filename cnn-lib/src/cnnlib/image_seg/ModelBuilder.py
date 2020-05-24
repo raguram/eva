@@ -115,8 +115,8 @@ class ModelTrainer:
             log.info(f"Obtained the data for batch:{idx}")
 
             x = torch.cat((data['bg'], data['fg_bg']), dim=1).to(self.device)
-            data['fg_bg_mask'] = data['fg_bg_mask'].unsqueeze(dim=1).to(self.device)
-            data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
+            data['fg_bg_mask'] = data['fg_bg_mask'].to(self.device)
+            data['fg_bg_depth'] = data['fg_bg_depth'].to(self.device)
 
             log.info(f"Starting the training for batch:{idx}")
             (loss, mask, depth) = self.__train_one_batch__(x, data['fg_bg_mask'], data['fg_bg_depth'])
@@ -176,8 +176,8 @@ class ModelTester:
             for idx, data in enumerate(pbar):
 
                 x = torch.cat((data['bg'], data['fg_bg']), dim=1).to(device=self.device)
-                data['fg_bg_mask'] = data['fg_bg_mask'].unsqueeze(dim=1).to(self.device)
-                data['fg_bg_depth'] = data['fg_bg_depth'].unsqueeze(dim=1).to(self.device)
+                data['fg_bg_mask'] = data['fg_bg_mask'].to(self.device)
+                data['fg_bg_depth'] = data['fg_bg_depth'].to(self.device)
 
                 log.info(f"Starting the testing for batch:{idx}")
                 (loss, mask, depth) = self.__test_one_batch__(x, data['fg_bg_mask'], data['fg_bg_depth'])

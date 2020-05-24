@@ -53,6 +53,7 @@ class DepthDataset(data.Dataset):
         if self.fg_bg_depth_transform:
             fg_bg_depth = self.fg_bg_depth_transform(fg_bg_depth)
 
+        # self.__show_images_from_tensors__([fg_bg_mask], cols=10, fig_size=(15, 15))
         return dict({'name': name, 'fg_bg': fg_bg, 'bg': bg, 'fg_bg_mask': fg_bg_mask, 'fg_bg_depth': fg_bg_depth})
 
     def __len__(self):
@@ -66,10 +67,10 @@ class DepthDataset(data.Dataset):
         data = [self[i] for i in range(count)]
         data = collate.default_collate(data)
 
-        self.__show_images_from_tensors__(data['bg'], cols, fig_size)
-        self.__show_images_from_tensors__(data['fg_bg'], cols, fig_size)
+        # self.__show_images_from_tensors__(data['bg'], cols, fig_size)
+        # self.__show_images_from_tensors__(data['fg_bg'], cols, fig_size)
         self.__show_images_from_tensors__(data['fg_bg_mask'], cols, fig_size)
-        self.__show_images_from_tensors__(data['fg_bg_depth'], cols, fig_size)
+        # self.__show_images_from_tensors__(data['fg_bg_depth'], cols, fig_size)
         return data
 
     def __show_images_from_tensors__(self, images, cols, fig_size):
