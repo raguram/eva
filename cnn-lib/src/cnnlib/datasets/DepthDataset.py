@@ -3,7 +3,10 @@ import os
 from os.path import join
 from PIL import Image
 import re
-from cnnlib.ImageUtils import load_image
+from cnnlib.ImageUtils import load_image, show_images
+import numpy as np
+import torch.utils.data._utils.collate as collate
+from torchvision.transforms import ToPILImage
 
 
 class DepthDataset(data.Dataset):
@@ -21,6 +24,7 @@ class DepthDataset(data.Dataset):
         self.fg_bg_mask_transform = fg_bg_mask_transform
         self.fg_bg_depth_transform = fg_bg_depth_transform
         self.reshape = reshape
+        self.toPilImage = ToPILImage()
 
     def __getitem__(self, index):
 
@@ -56,3 +60,18 @@ class DepthDataset(data.Dataset):
 
     def __get_bg_index__(self, file_name):
         return int(re.search("Image_([0-9]+).*", file_name).group(1))
+
+    def show_images(self, count, cols=10, fig_size=(15, 15)):
+
+        data = [self[i] for i in range(count)]
+        data = collate.default_collate(data)
+
+        self.__show_images_from_tensors__(data['bg'], cols, fig_size)
+        self.__show_images_from_tensors__(data['fg_bg'], cols, fig_size)
+        self.__show_images_from_tensors__(data['fg_bg_mask'], cols, fig_size)
+        self.__show_images_from_tensors__(data['fg_bg_depth'], cols, fig_size)
+        return data
+
+    def __show_images_from_tensors__(self, images, cols, fig_size):
+        images = [self.toPilImage(image) for image in images]
+        show_images(images, cols=cols, figSize=fig_size)

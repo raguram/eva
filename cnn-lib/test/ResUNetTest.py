@@ -29,6 +29,8 @@ test_dataset = torch.utils.data.Subset(dataset, list(range(16, 20)))
 train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=True, batch_size=2)
 test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=True, batch_size=2)
 
+# dataset.show_images(5)
+
 model = ResUNet(6, 1).to(Utility.getDevice())
 summary(model, (6, 224, 224))
 
