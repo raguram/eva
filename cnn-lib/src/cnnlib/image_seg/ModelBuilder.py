@@ -94,7 +94,9 @@ class ModelTrainer:
         loss = self.loss_fn(mask, target_mask) + self.loss_fn(depth, target_depth)
         loss.backward()
         self.optimizer.step()
-        return (loss.detach().item(), mask, depth)
+        loss_value = loss.detach().item()
+        del loss
+        return (loss_value, mask, depth)
 
     def train_one_epoch(self, loader, epoch_num):
 
@@ -134,6 +136,7 @@ class ModelTrainer:
                 metrices.append(metric)
                 log.info(f"Computed the metric for batch:{idx}")
 
+            del mask, depth, data
             log.info(f"Completed the training for batch:{idx}")
 
         metric = None
@@ -192,6 +195,7 @@ class ModelTester:
                     metrices.append(metric)
                     log.info(f"Computed the metric for batch:{idx}")
 
+                del loss, mask, depth, data
                 log.info(f"Completed the training for batch:{idx}")
 
         metric = None
