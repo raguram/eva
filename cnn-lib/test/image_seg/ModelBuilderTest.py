@@ -4,7 +4,7 @@ from cnnlib import Utility
 from cnnlib.DataUtility import Alb
 import torch.optim as optim
 from cnnlib.datasets.DepthDataset import DepthDataset
-from cnnlib.models.ResUNet import ResUNet_Dual
+from cnnlib.models.ResUNet import ResUNet_Lite
 import torch
 from torchsummary import summary
 from torch.nn import BCEWithLogitsLoss
@@ -24,7 +24,7 @@ test_dataset = torch.utils.data.Subset(dataset, list(range(16, 20)))
 train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=True, batch_size=2)
 test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=True, batch_size=2)
 
-model = ResUNet_Dual(6, 1)
+model = ResUNet_Lite(6, 1)
 summary(model, (6, 224, 224))
 
 loss_fn = BCEWithLogitsLoss()

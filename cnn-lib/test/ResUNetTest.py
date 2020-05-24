@@ -10,50 +10,25 @@ import torch.optim as optim
 from cnnlib.lr_finder import LRFinder
 from cnnlib.datasets.DepthDataset import DepthDataset
 import torch
-from cnnlib.models.ResUNet import ResUNet
+from cnnlib.models.ResUNet import ResUNet_Lite as ResUNet
 from cnnlib.ModelBuilder import PredictionResult
 import torch
 from torchsummary import summary
 from torch.nn import BCEWithLogitsLoss
 from tqdm import tqdm
-
-print(torch.__version__)
-
-
-class ModelTrainer:
-
-    def __train_one_batch(self, model, data, target, optimizer, lossFn):
-        optimizer.zero_grad()
-        output = model(data)
-        target = target.unsqueeze(dim=1)
-        loss = lossFn(output, target)
-        loss.backward()
-        optimizer.step()
-        return (loss, target)
-
-    def train_one_epoch(self, model, train_loader, optimizer, device, lossFn, scheduler):
-        model.train()
-        pbar = tqdm(train_loader)
-        whole_target = []
-        total_loss = 0
-        for idx, data in enumerate(pbar):
-            x = torch.cat((data['bg'], data['fg_bg']), dim=1)
-            (loss, target) = self.__train_one_batch(model, x, data['fg_bg_mask'], optimizer, lossFn)
-            total_loss += loss
-            whole_target.append(target)
-            break
-
-        return total_loss, torch.cat(whole_target)
-
+from cnnlib.image_seg.ModelBuilder import *
+from cnnlib.DataUtility import Data
 
 transforms = Alb(Compose([
     ToTensor()
 ]))
 
 dataset = DepthDataset("data/tiny_data/", transforms, transforms, transforms, transforms)
-loader = torch.utils.data.DataLoader(dataset, shuffle=True, batch_size=2)
+train_dataset = torch.utils.data.Subset(dataset, list(range(8)))
+test_dataset = torch.utils.data.Subset(dataset, list(range(16, 20)))
+train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=True, batch_size=2)
+test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=True, batch_size=2)
 
-trainer = ModelTrainer()
 model = ResUNet(6, 1).to(Utility.getDevice())
 summary(model, (6, 224, 224))
 
@@ -61,8 +36,9 @@ optimizer = optim.SGD(model.parameters(), lr=1e-5, momentum=0.9)
 
 lossFn = BCEWithLogitsLoss()
 
-loss, whole_target = trainer.train_one_epoch(model=model, train_loader=loader, optimizer=optimizer,
-                                             device=Utility.getDevice(),
-                                             lossFn=lossFn, scheduler=optimizer)
+builder = ModelBuilder(model=model, optimizer=optimizer,
+                       device=Utility.getDevice(),
+                       loss_fn=lossFn, scheduler=optimizer, data=Data(train_loader, test_loader))
 
-print(loss)
+result = builder.fit(1)
+print(result)
