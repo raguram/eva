@@ -4,6 +4,8 @@ from os import listdir
 from os.path import isfile, join
 from PIL import Image
 import gc
+from tqdm import tqdm_notebook as tqdm
+from zipfile import ZipFile
 
 
 def isCuda():
@@ -89,3 +91,21 @@ def load_image(file, channel):
 def cleanup():
     torch.cuda.empty_cache()
     gc.collect()
+
+
+def unzip(input_zip, output_dir):
+    zf = ZipFile(input_zip)
+    uncompress_size = sum((file.file_size for file in zf.infolist()))
+    print('uncompressed_size', uncompress_size / 1e6)
+
+    pbar = tqdm(zf.infolist(), ncols=1000)
+    # Loop through all files attempting to decompress each individually
+    extracted_size = 0
+    for idx, file in enumerate(pbar):
+        extracted_size += file.file_size
+        try:
+            zf.extract(file, output_dir)
+        except:
+            continue
+
+    zf.close()
