@@ -18,12 +18,13 @@ from torch.nn import BCEWithLogitsLoss
 from tqdm import tqdm
 from cnnlib.image_seg.ModelBuilder import *
 from cnnlib.DataUtility import Data
+from cnnlib.image_seg.Loss import Loss_fn
 
-transforms = Alb(Compose([
-    ToTensor()
-]))
+from torchvision import transforms
 
-dataset = DepthDataset("data/tiny_data/", transforms, transforms, transforms, transforms)
+trans = transforms.Compose([transforms.ToTensor()])
+
+dataset = DepthDataset("data/tiny_data/", trans, trans, trans, trans)
 train_dataset = torch.utils.data.Subset(dataset, list(range(8)))
 test_dataset = torch.utils.data.Subset(dataset, list(range(16, 20)))
 train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=True, batch_size=2)
@@ -36,7 +37,7 @@ summary(model, (6, 224, 224))
 
 optimizer = optim.SGD(model.parameters(), lr=1e-5, momentum=0.9)
 
-lossFn = BCEWithLogitsLoss()
+lossFn = Loss_fn(BCEWithLogitsLoss(), BCEWithLogitsLoss(), 1, 1)
 
 builder = ModelBuilder(model=model, optimizer=optimizer,
                        device=Utility.getDevice(),

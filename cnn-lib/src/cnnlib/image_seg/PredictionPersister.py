@@ -3,6 +3,7 @@ from cnnlib.ImageDao import ZipFileImagePersister
 from torchvision import transforms
 from cnnlib import Utility
 import torch
+from cnnlib import ImageUtils
 
 
 class ZipPredictionPersister:
@@ -20,3 +21,18 @@ class ZipPredictionPersister:
         pred_images = [self.pil_transform(t) for t in pred]
         persister(pred_images, names)
         zip.close()
+
+
+if __name__ == '__main__':
+
+    persister = ZipPredictionPersister("data.zip")
+    trans = transforms.Compose([transforms.ToTensor()])
+
+    tensor = trans(Utility.load_image("data/tiny_data/fg_bg_mask/Image_0_0_4.JPEG", 'L'))
+    print(tensor.shape)
+
+    pil = transforms.ToPILImage()
+    img = pil(tensor)
+
+    print(img.size)
+    ImageUtils.show_images([img])

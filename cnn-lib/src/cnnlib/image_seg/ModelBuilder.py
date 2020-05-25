@@ -91,7 +91,9 @@ class ModelTrainer:
     def __train_one_batch__(self, data, target_mask, target_depth):
         self.optimizer.zero_grad()
         mask, depth = self.model(data)
-        loss = self.loss_fn(mask, target_mask) + self.loss_fn(depth, target_depth)
+        out = dict({'fg_bg_mask': mask, 'fg_bg_depth': depth})
+        target = dict({'fg_bg_mask': target_mask, 'fg_bg_depth': target_depth})
+        loss = self.loss_fn(out, target)
         loss.backward()
         self.optimizer.step()
         loss_value = loss.detach().item()
@@ -144,7 +146,6 @@ class ModelTrainer:
             metric = self.metric_fn.aggregate(metrices)
         return PredictionResult(total_loss / len(loader.dataset), metric)
 
-
 class ModelTester:
 
     def __init__(self, model, loss_fn, persister=None, metric_fn=None, device=Utility.getDevice()):
@@ -156,7 +157,9 @@ class ModelTester:
 
     def __test_one_batch__(self, data, target_mask, target_depth):
         mask, depth = self.model(data)
-        loss = self.loss_fn(mask, target_mask) + self.loss_fn(depth, target_depth)
+        out = dict({'fg_bg_mask': mask, 'fg_bg_depth': depth})
+        target = dict({'fg_bg_mask': target_mask, 'fg_bg_depth': target_depth})
+        loss = self.loss_fn(out, target)
         return (loss.item(), mask, depth)
 
     def test(self, loader, epoch_num):
@@ -202,6 +205,8 @@ class ModelTester:
         if self.metric_fn is not None:
             metric = self.metric_fn.aggregate(metrices)
         return PredictionResult(total_loss / len(loader.dataset), metric)
+
+
 
 
 class PredictionResult:
