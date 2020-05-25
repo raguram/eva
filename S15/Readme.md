@@ -84,7 +84,7 @@ I am considering this as an image segmentation problem, where I given the fg_bg 
 
 ### Architecture Design 
 
-[Todo]
+The architecture uses the ResUnet
 
 ### Implementation Detail
 
