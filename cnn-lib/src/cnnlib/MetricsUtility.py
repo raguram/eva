@@ -51,3 +51,4 @@ def plot_x_y(coords, label):
     xs = [x[0] for x in coords]
     ys = [x[1] for x in coords]
     plt.plot(xs, ys, label=label)
+    plt.legend()
