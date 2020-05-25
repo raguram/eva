@@ -53,15 +53,3 @@ Modified [Depth Models](https://github.com/ialhashim/DenseDepth/blob/master/Dens
 | fg_bg_mask  |      457600 | 1, 224, 224 | 0.0846                 | 0.0432                 |
 | fg_bg_depth |      457600 | 1, 224, 224 | 0.3870                 | 0.0035                 |
 
-
-## Model Building 
-
-I am considering this as an image segmentation problem, where I given the fg_bg and the bg image of size H x W x C, I want to predict a mask of size H x W x 1 and depth of H x W x 1. During the survey of existing solutions for image segmentations, I came across https://www.jeremyjordan.me/semantic-segmentation. 
-
-### Architecture Design 
-
-The architecture uses the ResUnet
-
-### Implementation Detail
-
-To start with, I created a tiny dataset out of the bigger set containing randomly picked up 20k fg_bg images with their corresponding mask and depth images. The tiny data set can be accessed at [tiny_data.zip](https://drive.google.com/open?id=1Tw2Ijf2l7fERsOEQ7k_IMRXYTzm4BaI4). 
