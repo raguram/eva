@@ -29,11 +29,44 @@ Summary of the architecture can be found in the appendix below. You can access t
 
 ### Loss functions
 
-This section talks about the analyis of different loss functions. 
+To start with, I created a tiny dataset from of the bigger set containing randomly picked up 20k fg_bg images with their corresponding mask and depth images. The tiny data set can be accessed at [tiny_data.zip](https://drive.google.com/open?id=1Tw2Ijf2l7fERsOEQ7k_IMRXYTzm4BaI4). All of the analysis of the below losses were performed on this dataset. 
+I created an experiment suite, where it gets quicker to conduct experiments on this dataset. Code can be found [here](https://github.com/raguram/eva/blob/master/S15/Experiment-Suite.ipynb). 
+
+During the literature survey, I came across multiple losses. I picked up few relevant ones and performed an analysis. The following section gives an overview of the losses that I tried and corresponding results and observation. 
 
 #### BCEWithLogits
 
+This loss is a combination of sigmoid and Binary Cross Entropy. Leaving the formulations aside, logically, it first applies a sigmoid on to the output to bring the output in range (0, 1). Then, for every pixel in the output image, computes the binary cross entropy with the corresponding pixel in the target. More details can be found [here](https://pytorch.org/docs/master/generated/torch.nn.BCEWithLogitsLoss.html)
+
+BCE made sense to be applied on mask image as the target pixel values 0s or 1s. 
+
+- Loss: BCEWithLogistisLoss
+- Optimizer: SGD
+- LR: 0.5
+- Momentum: 0.9
+- Epochs: 20
+- Experiment [link](https://github.com/raguram/eva/blob/master/S15/Experiment-Suite.ipynb) 
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/BCE_Mask_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/BCE_MASK_FG_BG_MASK.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/BCE_MASK_FG_BG_MASK_PRED.png)
+
+The convergence was slow and the I guess the class imbalance (number of white pixels are low), might have caused the predicted image to close to a negative of the actual truth data. I am yet to identify the root cause of why this loss function is not appropriate. 
+
 #### L1 Loss 
+
+L1 loss is mean absolute error betwen each of the pixels in the output and the prediction. 
+
+- Loss: BCEWithLogistisLoss
+- Optimizer: SGD
+- LR: 0.5
+- Momentum: 0.9
+- Epochs: 20
+- Experiment [link](https://github.com/raguram/eva/blob/master/S15/Experiment-Suite.ipynb) 
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_MASK.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_PRED.png)
 
 #### Dice Loss 
 
@@ -55,12 +88,23 @@ This section talks about the analyis of different loss functions.
 
 ## Implementation Detail
 
-To start with, I created a tiny dataset out of the bigger set containing randomly picked up 20k fg_bg images with their corresponding mask and depth images. The tiny data set can be accessed at [tiny_data.zip](https://drive.google.com/open?id=1Tw2Ijf2l7fERsOEQ7k_IMRXYTzm4BaI4). 
+In this section, I will talk about the implementation details of the project. 
 
-### Optimizations 
+### Low Level Design 
 
+[TODO Add details]
 
-### Bug Fixes
+- [Cnn-lib](https://github.com/raguram/eva/tree/master/cnn-lib)
+- [Custom data set](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/datasets/DepthDataset.py) 
+- [Model builder](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/ModelBuilder.py) 
+- [Output Persister](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/PredictionPersister.py) 
+- [Loss](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/Loss.py) 
+
+### Optimization Bug Fixes
+
+[TODO Add details]
+- Torch cache cleanup 
+- Deleting the tensors for cleaning up memory 
 
 ## Appendix 
 
