@@ -165,5 +165,7 @@ class Alb:
 
     def __call__(self, img):
         img = np.array(img)
+        if img.ndim == 2:
+            img = img[:, :, np.newaxis]
         img = self.transforms(image=img)['image']
         return img

@@ -61,8 +61,5 @@ def paste_fg_on_bg(bg, fg, fg_mask, randomPasteCount):
     return overlayed_images, masked_images
 
 
-def load_image(folder, file, channel):
-    with open(join(folder, file), 'rb') as f:
-        x = Image.open(f)
-        x = x.convert(channel)
-    return x
+def load_image(folder, file):
+    return Image.open(join(folder, file))

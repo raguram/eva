@@ -28,11 +28,11 @@ class DepthDataset(data.Dataset):
 
     def __getitem__(self, index):
 
-        fg_bg = load_image(join(self.input_folder, "fg_bg"), self.fg_bg_files[index], 'RGB')
+        fg_bg = load_image(join(self.input_folder, "fg_bg"), self.fg_bg_files[index])
         bg = load_image(join(self.input_folder, "bg_images"),
-                        self.bg_files[self.__get_bg_index__(self.fg_bg_files[index])], 'RGB')
-        fg_bg_mask = load_image(join(self.input_folder, "fg_bg_mask"), self.fg_bg_files[index], 'L')
-        fg_bg_depth = load_image(join(self.input_folder, "fg_bg_depth"), self.fg_bg_files[index], 'L')
+                        self.bg_files[self.__get_bg_index__(self.fg_bg_files[index])])
+        fg_bg_mask = load_image(join(self.input_folder, "fg_bg_mask"), self.fg_bg_files[index])
+        fg_bg_depth = load_image(join(self.input_folder, "fg_bg_depth"), self.fg_bg_files[index])
         name = self.fg_bg_files[index]
 
         if self.reshape:
