@@ -99,12 +99,6 @@ This loss is similar to IOU as described [here](https://www.jeremyjordan.me/sema
 ![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/DICE_FG_BG_MASK.png)
 ![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/DICE_FG_BG_PRED.png)
 
-##### Depth
-
-![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/Dice_Depth_FG_BG.png)
-![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/Dice_Depth_FG_BG_Depth.png)
-![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/Dice_Depth_FG_BG_Pred.png)
-
 Based on the above results from different loss functions, I came up with some observations and areas where I have to dive deep understanding why I am seeing such results. Initially, I expected Binary Cross entropy loss with logistic to be perfect for mask prediction as the pixels are 0s and 1s. However, the results did not show the same. It could be because of class imbalance where the number of white pixels are very low. I still have to go deeper to undertand why BCE doesn't work. I will be trying out weighted BCE. Dice loss for mask is another loss where I did not obtain the expected results. For the given setting, L1 loss looks to have performed well for both mask and depth. 
 
 One more aspect I am trying to dig through is changing the experiment suite. Probably this time, I am planning to use the entire ~400k dataset with reduced image size and run these loss functions. I came across other losses. Some of them are - Huber loss - Loss which combines the L1 and L2, where the loss is linear for large values and quadratic for smaller values, SSIM - Structural Similarity Index, Tversky loss etc. In the interest of time, to avoid going into analysis paralysis, I decided to stick to combinations of the above loss functions and tried to get the juice out of the network.
