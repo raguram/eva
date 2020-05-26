@@ -105,23 +105,35 @@ One more aspect I am trying to dig through is changing the experiment suite. Pro
 
 ## Implementation Detail
 
-In this section, I will talk about the implementation details of the project. 
+In this section, I will talk about the implementation details. 
 
 ### Low Level Design 
 
-[TODO Add details]
+I reused the components from the [cnn-lib](https://github.com/raguram/eva/tree/master/cnn-lib) library built during the course of Eva phase 1. Key components in the low level design specific to this project are the following 
 
-- [Cnn-lib](https://github.com/raguram/eva/tree/master/cnn-lib)
-- [Custom data set](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/datasets/DepthDataset.py) 
-- [Model builder](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/ModelBuilder.py) 
-- [Output Persister](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/PredictionPersister.py) 
-- [Loss](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/Loss.py) 
+- [Custom data set](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/datasets/DepthDataset.py) loads the required data to be used by the train loader. 
+- [Model builder](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/ModelBuilder.py) contains classes for training and testing the model given a train and test loader. It has features to persist the model as per the checkpoint mentioned and log the progress to a log file. 
+- [Output Persister](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/PredictionPersister.py) is a utility that helps to persist the result of the forward pass of the model. Due to the scale of dataset, it has ways to sample X% of the output and persist it in a zip file, to avoid drastic increase in the latency. 
+- [Loss](https://github.com/raguram/eva/blob/master/cnn-lib/src/cnnlib/image_seg/Loss.py) contains the loss functions defined above. It also has the utility to join the losses for both the depth and mask. 
+- Experiment suite ([mask](https://github.com/raguram/eva/blob/master/S15/Experiment-Suite.ipynb), [depth](https://github.com/raguram/eva/blob/master/S15/ExperimentSuite_Depth.ipynb)) is the notebook containing the results of the experiments with loss functions as described above. 
+- [Model Training notebook](https://github.com/raguram/eva/blob/master/S15/ImageSegementation%26DepthEstimation.ipynb) is the notebook used for training the model on the complete dataset. 
 
-### Optimization Bug Fixes
+### Optimization
 
-[TODO Add details]
-- Torch cache cleanup 
-- Deleting the tensors for cleaning up memory 
+Major effort went towards optimizing the code to be scaled out for huge dataset. In the first version of the code, the max batch size I was able to run was 8 on 224x224x3 input with 11MM parameters on 16GB P100 instance. 
+
+- First issue I noticed was with the way I computed the totalloss of an epoch as shown below, where the loss was the tensor with all the gradient tree. 
+```
+total_loss += loss
+```
+For fixing this I detached the loss after the back prop during the training step and picked only the float value to be added to the total loos. 
+```
+total_loss += loss.detach().item()
+```
+
+- I deleted the tensors explicitly post each batch. 
+- Tried with setting torch.backends.cudnn.benchmark = True. However, I did not notice huge optimization here though. Yet to understand why. 
+
 
 ## Appendix 
 
