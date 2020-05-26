@@ -2,7 +2,7 @@
 
 This document talks about the results from multiple trials on the dataset described [here](https://github.com/raguram/eva/blob/master/S15/documentation/Dataset-Creation.md). It highlights the results from all the different configurations with loss functions. 
 
-## Model 1
+## Model
 
 - [Architecture](https://github.com/raguram/eva/blob/master/S15/documentation/Design.md#design)
 - Loss: 1 * L1Loss(out_mask, target_mask) + 1 * L1Loss(out_depth, target_depth)
@@ -25,8 +25,4 @@ This document talks about the results from multiple trials on the dataset descri
 
 ##### Observation 
 
-This model is a failure as the mask predictions are mostly complete black or white.
-
-## Model 2
-
-[TODO]
+This model is a failure as the mask predictions are mostly complete black or white. Using the same configurations, I am able to train the tiny data set. I am in the process of checking if there is any problem with the dataset. 
