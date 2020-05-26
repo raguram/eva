@@ -141,6 +141,7 @@ class ModelTrainer:
 
             lr = self.optimizer.param_groups[0]['lr']
             pbar.set_description(desc=f'id={idx}\t Loss={loss}\t LR={lr}\t')
+            log.info(f"For train batch {idx} loss is {loss} and lr is {lr}")
             del loss, mask, depth, data
             log.info(f"Completed the training for batch:{idx}")
 
@@ -203,6 +204,7 @@ class ModelTester:
                     log.info(f"Computed the metric for batch:{idx}")
 
                 pbar.set_description(desc=f'Loss={loss}\t id={idx}\t')
+                log.info(f"For test batch {idx} loss is {loss}")
                 del loss, mask, depth, data
                 log.info(f"Completed the training for batch:{idx}")
 
