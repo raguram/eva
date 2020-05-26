@@ -76,19 +76,7 @@ This is L2 loss taking the squared difference between the values of the pixels.
 
 This loss is similar to IOU. 
 
-#### SSIM 
-
-#### HuberLoss
-
-#### SpatialGradient
-
-#### Berhu Loss
-
-### Metrics
-
-#### IOU
-
-#### Pixel Accuracy 
+I came across other losses. Some of them are - Huber loss - Loss which combines the L1 and L2, where the loss is linear for large values and quadratic for smaller values, SSIM - Structural Similarity Index, Tversky loss etc. In the interest of time, to avoid going into analysis paralysis, I decided to stick to combinations of the above loss functions and tried to get the juice out of the network.
 
 ## Implementation Detail
 
