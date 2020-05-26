@@ -1,5 +1,6 @@
 import torch
 from tqdm import tqdm_notebook as tqdm
+# from tqdm import tqdm
 from cnnlib import Utility
 import logging as log
 
@@ -138,13 +139,16 @@ class ModelTrainer:
                 metrices.append(metric)
                 log.info(f"Computed the metric for batch:{idx}")
 
-            del mask, depth, data
+            lr = self.optimizer.param_groups[0]['lr']
+            pbar.set_description(desc=f'id={idx}\t Loss={loss}\t LR={lr}\t')
+            del loss, mask, depth, data
             log.info(f"Completed the training for batch:{idx}")
 
         metric = None
         if self.metric_fn is not None:
             metric = self.metric_fn.aggregate(metrices)
         return PredictionResult(total_loss / len(loader.dataset), metric)
+
 
 class ModelTester:
 
@@ -198,6 +202,7 @@ class ModelTester:
                     metrices.append(metric)
                     log.info(f"Computed the metric for batch:{idx}")
 
+                pbar.set_description(desc=f'Loss={loss}\t id={idx}\t')
                 del loss, mask, depth, data
                 log.info(f"Completed the training for batch:{idx}")
 
@@ -205,8 +210,6 @@ class ModelTester:
         if self.metric_fn is not None:
             metric = self.metric_fn.aggregate(metrices)
         return PredictionResult(total_loss / len(loader.dataset), metric)
-
-
 
 
 class PredictionResult:
