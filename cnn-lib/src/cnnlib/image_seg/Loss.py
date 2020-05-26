@@ -35,3 +35,15 @@ class RootMeanSquaredErrorLoss(nn.Module):
         return loss
 
 
+class DiceLoss(nn.Module):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.eps: float = 1e-6
+
+    def forward(self, out, target):
+        out = torch.sigmoid(out)
+        i = torch.sum(out * target, (1, 2, 3))
+        u = torch.sum(out + target, (1, 2, 3))
+        iou = i / (u + self.eps)
+        return torch.mean(torch.tensor(1.0) - 2.0 * iou)
