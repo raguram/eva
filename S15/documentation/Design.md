@@ -68,11 +68,15 @@ L1 loss is mean absolute error betwen each of the pixels in the output and the p
 ![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_MASK.png)
 ![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_PRED.png)
 
+#### Root Mean Squared Error Loss 
+
+This is L2 loss taking the squared difference between the values of the pixels. 
+
 #### Dice Loss 
 
-#### SSIM 
+This loss is similar to IOU. 
 
-#### Root Mean Squared Error Loss 
+#### SSIM 
 
 #### HuberLoss
 
