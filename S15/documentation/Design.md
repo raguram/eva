@@ -57,26 +57,59 @@ The convergence was slow and the I guess the class imbalance (number of white pi
 
 L1 loss is mean absolute error betwen each of the pixels in the output and the prediction. 
 
-- Loss: BCEWithLogistisLoss
+- Loss: L1 Loss
 - Optimizer: SGD
 - LR: 0.5
 - Momentum: 0.9
 - Epochs: 20
-- Experiment [link](https://github.com/raguram/eva/blob/master/S15/Experiment-Suite.ipynb) 
+
+##### Mask [Experiment](https://github.com/raguram/eva/blob/master/S15/Experiment-Suite.ipynb) 
 
 ![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG.png)
 ![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_MASK.png)
 ![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_PRED.png)
 
+##### Depth [Experiment](https://github.com/raguram/eva/blob/master/S15/ExperimentSuite_Depth.ipynb) 
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/L1_depth_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/L1_Depth_FG_BG_MASK.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/L1_FG_BG_DEPTH.png)
+
 #### Root Mean Squared Error Loss 
 
-This is L2 loss taking the squared difference between the values of the pixels. 
+I used MSE and taken the sqrt for the same. 
+
+##### Mask
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/RMSE_MASK_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/RMSE_MASK_FG_BG_DEPTH.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/RMSE_MASK_FG_BG_PRED.png)
+
+##### Depth
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/RMSE_DEPTH_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/RMSE_DEPTH_FG_BG_MASK.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/RMSE_DEPTH_FG_BG_PRED.png)
 
 #### Dice Loss 
 
-This loss is similar to IOU. 
+This loss is similar to IOU as described [here](https://www.jeremyjordan.me/semantic-segmentation/)
 
-I came across other losses. Some of them are - Huber loss - Loss which combines the L1 and L2, where the loss is linear for large values and quadratic for smaller values, SSIM - Structural Similarity Index, Tversky loss etc. In the interest of time, to avoid going into analysis paralysis, I decided to stick to combinations of the above loss functions and tried to get the juice out of the network.
+##### Mask
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/DICE_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/DICE_FG_BG_MASK.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/DICE_FG_BG_PRED.png)
+
+##### Depth
+
+![FG_BG](https://github.com/raguram/eva/blob/master/S15/documentation/Dice_Depth_FG_BG.png)
+![FG_BG_MASK](https://github.com/raguram/eva/blob/master/S15/documentation/Dice_Depth_FG_BG_Depth.png)
+![FG_BG_PREDICTED](https://github.com/raguram/eva/blob/master/S15/documentation/Dice_Depth_FG_BG_Pred.png)
+
+Based on the above results from different loss functions, I came up with following observations and some more areas where I have to dive deep understanding why I am seeing such results. 
+
+Also, I came across other losses. Some of them are - Huber loss - Loss which combines the L1 and L2, where the loss is linear for large values and quadratic for smaller values, SSIM - Structural Similarity Index, Tversky loss etc. In the interest of time, to avoid going into analysis paralysis, I decided to stick to combinations of the above loss functions and tried to get the juice out of the network.
 
 ## Implementation Detail
 
