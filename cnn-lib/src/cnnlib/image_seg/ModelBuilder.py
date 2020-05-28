@@ -3,6 +3,7 @@ from tqdm import tqdm_notebook as tqdm
 # from tqdm import tqdm
 from cnnlib import Utility
 import logging as log
+from cnnlib.image_seg.Summary import ModelSummaryWriter
 
 log.basicConfig(filename='model-builder.log', level=log.DEBUG, format='%(asctime)s %(message)s')
 
@@ -14,18 +15,22 @@ class ModelBuilder:
 
     def __init__(self, model, data, loss_fn, optimizer, checkpoint=None, model_path=None, scheduler=None,
                  metric_fn=None,
-                 train_pred_persister=None, test_pred_persister=None, device=Utility.getDevice()):
+                 train_pred_persister=None, test_pred_persister=None, device=Utility.getDevice(),
+                 train_summary_writer=ModelSummaryWriter(name="-train"),
+                 test_summary_writer=ModelSummaryWriter(name="-test")):
         self.model = model
         self.lossFn = loss_fn
         self.optimizer = optimizer
         self.data = data
         self.checkpoint = checkpoint
         self.model_path = model_path
+
         self.trainer = ModelTrainer(model=model, loss_fn=loss_fn, optimizer=optimizer,
                                     scheduler=optimizer if scheduler is None else scheduler,
-                                    metric_fn=metric_fn, persister=train_pred_persister)
+                                    metric_fn=metric_fn, persister=train_pred_persister,
+                                    summary_writer=train_summary_writer)
         self.tester = ModelTester(model=model, loss_fn=loss_fn, persister=test_pred_persister, metric_fn=metric_fn,
-                                  device=device)
+                                  device=device, summary_writer=test_summary_writer)
 
     def fit(self, epoch):
 
@@ -80,7 +85,9 @@ class ModelBuilder:
 class ModelTrainer:
 
     def __init__(self, model, loss_fn, optimizer, scheduler, persister=None, metric_fn=None,
-                 device=Utility.getDevice()):
+                 device=Utility.getDevice(), run_name="-model-trainer",
+                 summary_writer=None):
+
         self.optimizer = optimizer
         self.device = device
         self.loss_fn = loss_fn
@@ -88,6 +95,7 @@ class ModelTrainer:
         self.model = model
         self.persister = persister
         self.metric_fn = metric_fn
+        self.writer = summary_writer
 
     def __train_one_batch__(self, data, target_mask, target_depth):
         self.optimizer.zero_grad()
@@ -110,8 +118,10 @@ class ModelTrainer:
         pbar = tqdm(loader, ncols=1000)
 
         total_loss = 0
+        summary_loss = 0
         metrices = []
 
+        num_batches = len(loader)
         log.info(f"Trainer starting the training for epoch: {epoch_num}")
         for idx, data in enumerate(pbar):
 
@@ -126,6 +136,8 @@ class ModelTrainer:
             log.info(f"End of the training for batch:{idx}")
 
             total_loss += loss
+            summary_loss += loss
+
             self.scheduler.step()
             log.info(f"Scheduler step for the batch:{idx}")
 
@@ -138,6 +150,14 @@ class ModelTrainer:
                 metric = self.metric_fn(data, mask)
                 metrices.append(metric)
                 log.info(f"Computed the metric for batch:{idx}")
+
+            if (idx + 1 % 500 == 0 or idx == num_batches - 1):
+                self.writer.write_pred_summary(data, mask.detach(), depth.detach())
+                l = summary_loss / 500
+                if idx == num_batches - 1:
+                    l = summary_loss / (idx + 1 % 500)
+                self.writer.write_loss_summary('train loss', l, epoch_num * num_batches + idx)
+                summary_loss = 0
 
             lr = self.optimizer.param_groups[0]['lr']
             pbar.set_description(desc=f'id={idx}\t Loss={loss}\t LR={lr}\t')
@@ -153,12 +173,14 @@ class ModelTrainer:
 
 class ModelTester:
 
-    def __init__(self, model, loss_fn, persister=None, metric_fn=None, device=Utility.getDevice()):
+    def __init__(self, model, loss_fn, persister=None, metric_fn=None, device=Utility.getDevice(),
+                 summary_writer=ModelSummaryWriter(name="-test")):
         self.device = device
         self.loss_fn = loss_fn
         self.model = model
         self.persister = persister
         self.metric_fn = metric_fn
+        self.writer = summary_writer
 
     def __test_one_batch__(self, data, target_mask, target_depth):
         mask, depth = self.model(data)
@@ -176,8 +198,10 @@ class ModelTester:
 
         pbar = tqdm(loader, ncols=1000)
         total_loss = 0
-        metrices = []
+        summary_loss = 0
 
+        metrices = []
+        num_batches = len(loader)
         log.info(f"Tester starting the testing for epoch: {epoch_num}")
 
         with torch.no_grad():
@@ -192,6 +216,7 @@ class ModelTester:
                 log.info(f"End of the testing for batch:{idx}")
 
                 total_loss += loss
+                summary_loss += loss
 
                 if self.persister is not None:
                     self.persister(data, mask, epoch_num, "mask")
@@ -202,6 +227,14 @@ class ModelTester:
                     metric = self.metric_fn(data, mask)
                     metrices.append(metric)
                     log.info(f"Computed the metric for batch:{idx}")
+
+                if (idx + 1 % 500 == 0 or idx == num_batches - 1):
+                    self.writer.write_pred_summary(data, mask, depth)
+                    l = summary_loss / 500
+                    if idx == num_batches - 1:
+                        l = summary_loss / (idx + 1 % 500)
+                    self.writer.write_loss_summary('test loss', l, epoch_num * num_batches + idx)
+                    summary_loss = 0
 
                 pbar.set_description(desc=f'Loss={loss}\t id={idx}\t')
                 log.info(f"For test batch {idx} loss is {loss}")
