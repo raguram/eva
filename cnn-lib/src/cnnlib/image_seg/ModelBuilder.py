@@ -151,7 +151,7 @@ class ModelTrainer:
                 metrices.append(metric)
                 log.info(f"Computed the metric for batch:{idx}")
 
-            if (idx + 1 % 500 == 0 or idx == num_batches - 1):
+            if ((idx + 1) % 500 == 0 or idx == num_batches - 1):
                 self.writer.write_pred_summary(data, mask.detach(), depth.detach())
                 l = summary_loss / 500
                 if idx == num_batches - 1:
