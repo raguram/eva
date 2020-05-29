@@ -47,3 +47,4 @@ class DiceLoss(nn.Module):
         u = torch.sum(out + target, (1, 2, 3))
         iou = i / (u + self.eps)
         return torch.mean(torch.tensor(1.0) - 2.0 * iou)
+

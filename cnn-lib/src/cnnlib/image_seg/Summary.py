@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
+from cnnlib import Utility
 
 
 class ModelSummaryWriter:
@@ -17,6 +18,7 @@ class ModelSummaryWriter:
 
         def plt_images(images, start_idx):
             for idx, img in enumerate(images):
+                img = img.to(Utility.getCpu())
                 plt.subplot(rows, cols, start_idx + idx)
                 plt.axis("off")
                 plt.imshow(np.asarray(img.squeeze()), cmap='gray')

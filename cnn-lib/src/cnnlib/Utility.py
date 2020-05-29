@@ -20,6 +20,10 @@ def getDevice():
     return torch.device("cuda" if isCuda() else "cpu")
 
 
+def getCpu():
+    return torch.device("cpu")
+
+
 def setSeed(seed):
     torch.manual_seed(seed)
     if isCuda():
