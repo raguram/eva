@@ -151,17 +151,19 @@ class ModelTrainer:
                 metrices.append(metric)
                 log.info(f"Computed the metric for batch:{idx}")
 
+            lr = self.optimizer.param_groups[0]['lr']
+            pbar.set_description(desc=f'id={idx}\t Loss={loss}\t LR={lr}\t')
+            log.info(f"For train batch {idx} loss is {loss} and lr is {lr}")
+
             if ((idx + 1) % 500 == 0 or idx == num_batches - 1):
                 self.writer.write_pred_summary(data, mask.detach(), depth.detach())
                 l = summary_loss / 500
                 if idx == num_batches - 1:
                     l = summary_loss / ((idx + 1) % 500)
-                self.writer.write_loss_summary('train loss', l, epoch_num * num_batches + idx)
+                self.writer.write_scalar_summary('train loss', l, epoch_num * num_batches + idx)
+                self.writer.write_scalar_summary('lr', lr, epoch_num * num_batches + idx)
                 summary_loss = 0
 
-            lr = self.optimizer.param_groups[0]['lr']
-            pbar.set_description(desc=f'id={idx}\t Loss={loss}\t LR={lr}\t')
-            log.info(f"For train batch {idx} loss is {loss} and lr is {lr}")
             del loss, mask, depth, data
             log.info(f"Completed the training for batch:{idx}")
 
@@ -233,7 +235,7 @@ class ModelTester:
                     l = summary_loss / 500
                     if idx == num_batches - 1:
                         l = summary_loss / ((idx + 1) % 500)
-                    self.writer.write_loss_summary('test loss', l, epoch_num * num_batches + idx)
+                    self.writer.write_scalar_summary('test loss', l, epoch_num * num_batches + idx)
                     summary_loss = 0
 
                 pbar.set_description(desc=f'Loss={loss}\t id={idx}\t')

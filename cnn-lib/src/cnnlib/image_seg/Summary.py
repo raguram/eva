@@ -32,5 +32,5 @@ class ModelSummaryWriter:
 
         self.writer.add_figure("batch sample", figure=figure)
 
-    def write_loss_summary(self, metric_name, loss, global_step):
+    def write_scalar_summary(self, metric_name, loss, global_step):
         self.writer.add_scalar(metric_name, loss, global_step)
